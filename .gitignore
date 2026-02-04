@@ -1,0 +1,90 @@
+# Data files (hosted on Dryad)
+*.csv
+*.tsv
+*.txt
+
+# QIIME2 files
+*.qza
+*.qzv
+*.biom
+
+# Sequence files
+*.fastq
+*.fastq.gz
+*.fasta
+*.fa
+*.fna
+
+# Tree files
+*.tree
+*.nwk
+*.tre
+
+# R files
+.Rhistory
+.RData
+.Rproj.user
+*.Rproj
+
+# R output files
+*.png
+*.pdf
+*.jpg
+*.jpeg
+*.tiff
+*.svg
+
+# Mac OS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbnails
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.bak
+
+# Logs
+*.log
+
+# Jupyter Notebooks (if used)
+.ipynb_checkpoints
+*.ipynb
+
+# Python cache (if used)
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Keep these files
+!.gitkeep
+!README.md
+!*.sh
+!*.R
+!*.md
+
+# Keep example/small test data if you add it later
+!data/example_*
