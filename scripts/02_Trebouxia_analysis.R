@@ -20,7 +20,7 @@
 # SETUP: Set Working Directory
 ################################################################################
 # Update this path to match your local directory structure
-setwd(~/Desktop/PhD/Projects/Evernia_SPRUCE/Evernia_R_code/Manuscript_Files)
+setwd("path/to/OTUdata/")
 
 ################################################################################
 # Load Required Libraries
@@ -57,15 +57,15 @@ treb_meta$temp <- as.character(treb_meta$temp)
 # - I = Trebouxia clade 'I' (impressa/gelatinosa group)
 # - A = Trebouxia clade 'A' (arboricola/gigantea group)  
 # - S = Trebouxia clade 'S' (simplex/jamesii group)
-# Number after indicates placement within that clade
+# Number after indicates the genotype the OTU was placed in Muggia 2020 phylogeny
 
 treb_otu <- treb_otu %>%
-  rename(I02 = UNK_01,      # Placed in clade I, group 02
-         A13_1 = UNK_03,    # Placed in clade A, group 13 (first duplicate)
-         S01 = UNK_04,      # Placed in clade S, group 01
-         I18 = UNK_05,      # Placed in clade I, group 18
-         A13_2 = UNK_06,    # Placed in clade A, group 13 (second duplicate)
-         A04 = UNK_07       # Placed in clade A, group 04
+  rename(I02 = UNK_01,      
+         A13_1 = UNK_03,    
+         S01 = UNK_04,      
+         I18 = UNK_05,      
+         A13_2 = UNK_06,   
+         A04 = UNK_07       
   )
 
 # Remove UNK_02 (19th column) - failed to align properly in phylogenetic analysis
@@ -75,7 +75,7 @@ treb_otu <- treb_otu[, -19]
 # PART 3: AGGREGATE DUPLICATE OTUs
 ################################################################################
 # Some OTUs have multiple representative sequences but belong to the same
-# phylogenetic group (e.g., A13_1 and A13_2). Sum read counts for OTUs that
+# genotype (e.g., A13_1 and A13_2). Sum read counts for OTUs that
 # share the same first 3 characters of their name.
 #
 # split.default: Splits columns by first 3 characters of column name
@@ -140,18 +140,18 @@ ggplot(treb_long,
   # Manually set colors for each OTU
   # Color scheme: Similar clades have similar hues
   # A clade = browns/yellows, I clade = blues, S clade = greens
-  scale_fill_manual(values = c("A04" = "#6e5c06",   # Dark brown
-                                "A13" = "#a5994a",   # Medium brown
-                                "A33" = "#ddda8c",   # Light yellow-brown
-                                "I01" = "#5864AB",   # Medium blue
-                                "I02" = "#323281",   # Dark blue
-                                "I08" = "#B5CCFB",   # Light blue
-                                "I11" = "#8397D3",   # Medium-light blue
-                                "I18" = "#0C0056",   # Very dark blue
-                                "S01" = "#9CF7C7",   # Light green
-                                "S02" = "#6abc90",   # Medium-light green
-                                "S06" = "#39835e",   # Medium-dark green
-                                "S10" = "#014f2f")) + # Dark green
+  scale_fill_manual(values = c("A04" = "#6e5c06",   
+                                "A13" = "#a5994a",   
+                                "A33" = "#ddda8c",   
+                                "I01" = "#5864AB",   
+                                "I02" = "#323281",   
+                                "I08" = "#B5CCFB",   
+                                "I11" = "#8397D3",   
+                                "I18" = "#0C0056",   
+                                "S01" = "#9CF7C7",   
+                                "S02" = "#6abc90",   
+                                "S06" = "#39835e",   
+                                "S10" = "#014f2f")) + 
   guides(fill = guide_legend(title = "OTU")) +
   xlab("Thallus Type by Temperature Differential °C") +
   ylab("Percent") +
@@ -172,7 +172,7 @@ treb_tree <- read.tree(file = "RAxML_bestTree.legend.tree")
 # View tip labels to identify what to remove
 treb_tree$tip.label
 
-# Remove two tips that aren't relevant for the legend (14th and 15th tips)
+# Remove out group tips that aren't relevant for the legend (14th and 15th tips)
 drop <- c(treb_tree$tip.label[14], treb_tree$tip.label[15])
 final_tree <- drop.tip(treb_tree, drop)
 plot(final_tree)
@@ -181,11 +181,12 @@ plot(final_tree)
 # PART 8: SIMPLIFY TIP LABELS FOR CLEANER VISUALIZATION
 ################################################################################
 # Extract just the OTU codes (first 3 characters) from full sequence names
-# Special case: Label the outgroup as "Clade 'C'"
+# Special case: Label "Clade 'C'" (not found in our samples, but a major clade 
+# in the Treobuxia phylogeny)
 
 label2 <- c(final_tree$tip.label)
 label2 <- substr(label2, 2, 4)  # Extract characters 2-4 from each label
-label2 <- replace(label2, 13, "Clade 'C'")  # Replace 13th label with clade name
+label2 <- replace(label2, 13, "Clade 'C'") 
 
 # Create data frame for renaming
 d <- data.frame(label = final_tree$tip.label, label2 = label2)
@@ -230,9 +231,6 @@ t
 # This allows calculation of clade-level summaries
 #
 # Clade determination based on first letter of OTU name:
-# - I = impressa/gelatinosa clade
-# - S = simplex/jamesii clade  
-# - A = arboricola/gigantea clade
 
 treb_long <- treb_long %>%
   mutate(clade = case_when(
@@ -283,8 +281,8 @@ treb_clade_sum$temp <- as.numeric(treb_clade_sum$temp)
 lm_prop_I <- lm(clade_prop ~ temp, 
                 data = subset(treb_clade_sum, clade == "I"))
 
-# View regression results (not printed in script, but check R console)
-# summary(lm_prop_I)  # Uncomment to see detailed statistics
+# View regression results 
+summary(lm_prop_I) 
 
 ################################################################################
 # PART 13: CREATE FIGURE 8B - Clade I Proportion vs. Temperature
@@ -303,7 +301,7 @@ ggplot(subset(treb_clade_sum, clade == "I"),
   # intercept = 0.0007021, slope = 0.0196269
   geom_abline(intercept = 0.0007021, 
               slope = 0.0196269, 
-              color = "#8397D3",  # Blue color matching clade I
+              color = "#8397D3",
               size = 2) +
   theme(axis.line = element_line(colour = "black"),
         panel.grid.major = element_blank(),
@@ -317,8 +315,7 @@ ggplot(subset(treb_clade_sum, clade == "I"),
 # PART 14: ALPHA DIVERSITY ANALYSIS - Core vs. Tips
 ################################################################################
 # Research question: Do core and tip regions of thalli differ in photobiont
-# diversity? Hypothesis: Core regions maintain higher diversity as tips
-# experience more environmental stress.
+# diversity? 
 
 ################################################################################
 # PART 14A: Prepare Data for Metacoder Package
@@ -446,16 +443,5 @@ median(paired_wide$tips)  # Result: 0.1253272
 median(paired_wide$core)  # Result: 0.3336968
 
 # Interpretation: Core regions have ~2.7x higher median Shannon diversity
-# than tips, suggesting photobiont communities in tips are more stressed
-# or less diverse under the experimental conditions
+# than tips.
 
-################################################################################
-# Script Complete
-################################################################################
-# Key outputs:
-# - Figure 8A: Stacked bar plot of OTU composition + phylogram
-# - Figure 8B: Regression plot of clade I proportion vs. temperature
-# - Statistical results: 
-#   * Clade I increases significantly with temperature
-#   * Core regions have significantly higher diversity than tips
-################################################################################
